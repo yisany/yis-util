@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="1800">
+    <properties>
+        <property name="LOG_LEVEL">DEBUG</property>
+        <property name="LOG_HOME">./logs</property>
+        <property name="ERROR_LOG_FILE_NAME">error</property>
+        <property name="INFO_LOG_FILE_NAME">info</property>
+    </properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5p [%.10t][%X{CU}] %logger{36}[%L] - %m%n" />
+        </Console>
+        <RollingRandomAccessFile name="ErrorLog"
+                                 fileName="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${ERROR_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}_%i.tar.gz">
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5p [%.10t][%X{CU}] %logger{36}[%L] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" />
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_HOME}" maxDepth="2">
+                    <IfFileName glob="*.tar.gz"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="InfoLog"
+                                 fileName="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log"
+                                 filePattern="${LOG_HOME}/${INFO_LOG_FILE_NAME}.log.%d{yyyy-MM-dd}_%i.tar.gz">
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5p [%.10t][%X{CU}] %logger{36}[%L] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" />
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_HOME}" maxDepth="2">
+                    <IfFileName glob="*.tar.gz"/>
+                    <IfLastModified age="1d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="${LOG_LEVEL}" includeLocation="true">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="ErrorLog" />
+            <appender-ref ref="InfoLog" />
+        </Root>
+    </Loggers>
+</Configuration>
