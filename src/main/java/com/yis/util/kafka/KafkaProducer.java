@@ -1,16 +1,13 @@
 package com.yis.util.kafka;
 
 import com.alibaba.fastjson.JSON;
-import com.yis.util.date.DateUtil;
 import com.yis.util.exception.BizException;
 import com.yis.util.kafka.client.JKafkaProducer;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -18,7 +15,7 @@ import java.util.UUID;
 /**
  * @author milu
  * @Description kafka生产
- * @createTime 2019年12月12日 13:48:00
+ * @createTime 2020年01月03日 11:04:00
  */
 public class KafkaProducer {
 
@@ -34,6 +31,13 @@ public class KafkaProducer {
 
     private KafkaProducer() {}
 
+    /**
+     * 初始化生产者
+     * @param bootstrapServers
+     * @param topic
+     * @param properties
+     * @return
+     */
     public static boolean initInstance(String bootstrapServers, String topic, Map<String, String> properties) {
         if (handler == null) {
             synchronized (KafkaProducer.class) {
@@ -47,6 +51,10 @@ public class KafkaProducer {
         return false;
     }
 
+    /**
+     * 获取生产者实例
+     * @return
+     */
     public static KafkaProducer getInstance() {
         if (handler == null) {
             synchronized (KafkaProducer.class) {
@@ -59,7 +67,16 @@ public class KafkaProducer {
         return handler;
     }
 
+    /**
+     * 关闭生产者
+     */
+    public void release() {
+        producer.close();
+        logger.info("kafka producer release.");
+    }
+
     private void init(String bootstrapServers, String topic, Map<String, String> properties) {
+
         this.bootstrapServers = bootstrapServers;
         this.topic = topic;
         this.properties = properties;
@@ -69,7 +86,6 @@ public class KafkaProducer {
 
     private void prepare() {
         try {
-
             if (props == null) {
                 props = new Properties();
                 props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -84,53 +100,28 @@ public class KafkaProducer {
         }
     }
 
-    public void release() {
-        if (producer != null) {
-            producer.close();
-            logger.warn("kafka producer release.");
-        }
+    /**
+     * 数据发送
+     * @param message
+     */
+    public void pushToKafka(String message) {
+        producer.sendWithRetry(topic, UUID.randomUUID().toString(), message);
+        producer.flush();
     }
 
     /**
-     * kafka生产消息
-     *
-     * @param msg
+     * 数据发送
+     * @param message
+     * @param caller
      */
-    public void pushToKafka(String msg) {
-        producer.sendWithRetry(topic, UUID.randomUUID().toString(), msg);
-    }
-
-    public void pushToKafka(String msg, Caller caller) {
-        Map<String, Object> event = caller.convert(msg);
+    public void pushToKafka(String message, Caller caller) {
+        Map<String, Object> event = caller.convert(message);
         producer.sendWithRetry(topic, UUID.randomUUID().toString(), JSON.toJSONString(event));
+        producer.flush();
     }
 
     /**
-     * 添加字段
-     * @return
-     */
-    private String convert(String message) {
-        String timestamp = DateUtil.getUTC(System.currentTimeMillis());
-
-        Map<String, Object> event = new HashMap<>();
-        event.put("message", message);
-        event.put("@timestamp", timestamp);
-        event.put("timestamp", timestamp);
-        event.put("appname", "bash_agent");
-        event.put("keeptype", "7d");
-        event.put("logtype", "no_log");
-        event.put("tag", "shell");
-        event.put("local_ip", "127.0.0.1");
-        event.put("tenant_id", 1);
-        event.put("hostname", "localhost");
-        event.put("path", "/");
-        event.put("agent_type", "bash_agent");
-
-        return JSON.toJSONString(event);
-    }
-
-    /**
-     * 数据转换
+     * 数据处理
      */
     public interface Caller {
         Map<String, Object> convert(String message);

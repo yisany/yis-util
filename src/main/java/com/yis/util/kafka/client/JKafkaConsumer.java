@@ -7,6 +7,7 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,7 +129,8 @@ public class JKafkaConsumer {
                 try {
                     if (this.running) {
                         try {
-                            ConsumerRecords<String, String> records = this.consumer.poll(9223372036854775807L);
+                            ConsumerRecords<String, String> records = this.consumer.poll(Duration.ofMillis(Long.MAX_VALUE));
+
                             Iterator var2 = records.iterator();
 
                             while(true) {
@@ -162,8 +164,6 @@ public class JKafkaConsumer {
                     }
                 } catch (Throwable var12) {
                     this.caller.catchException("", var12);
-                } finally {
-                    this.consumer.close();
                 }
 
                 return;

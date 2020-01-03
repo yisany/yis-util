@@ -2,6 +2,7 @@ package com.yis.util.kafka;
 
 import com.yis.util.exception.BizException;
 import com.yis.util.kafka.client.JKafkaConsumer;
+import com.yis.util.pool.ThreadPool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +34,14 @@ public class KafkaConsumer {
 
     private KafkaConsumer() {}
 
+    /**
+     * 初始化消费者
+     * @param bootstrapServers
+     * @param topics
+     * @param groupId
+     * @param properties
+     * @return
+     */
     public static boolean initInstance(String bootstrapServers, String topics, String groupId, Map<String, String> properties) {
         if (handler == null) {
             synchronized (KafkaConsumer.class) {
@@ -46,6 +55,10 @@ public class KafkaConsumer {
         return false;
     }
 
+    /**
+     * 获取消费者实例
+     * @return
+     */
     public static KafkaConsumer getInstance() {
         if (handler == null) {
             synchronized (KafkaConsumer.class) {
@@ -85,6 +98,9 @@ public class KafkaConsumer {
         return props;
     }
 
+    /**
+     * 关闭消费者实例
+     */
     public void release() {
         if (consumer != null) {
             consumer.close();
@@ -92,7 +108,12 @@ public class KafkaConsumer {
         }
     }
 
+    /**
+     * 拉取数据
+     * @param caller
+     */
     public void pullFromKafka(Caller caller) {
+        System.out.println("开始消费");
         try {
             consumer.add(topics, groupId, new JKafkaConsumer.Caller() {
                 @Override

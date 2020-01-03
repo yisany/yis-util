@@ -50,7 +50,7 @@ public class JKafkaProducer {
         this.sendWithBlock(topic, key, value);
     }
 
-    public void sendWithBlock(String topic, String key, final String value) {
+    private void sendWithBlock(String topic, String key, final String value) {
         if (value != null) {
             this.producer.send(new ProducerRecord(topic, key, value), new Callback() {
                 public void onCompletion(RecordMetadata metadata, Exception exception) {
