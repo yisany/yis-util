@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -115,7 +116,8 @@ public class KafkaProducer {
      * @param caller
      */
     public void pushToKafka(String message, Caller caller) {
-        Map<String, Object> event = caller.convert(message);
+        Map<String, Object> event = new HashMap<>();
+        caller.convert(message, event);
         producer.sendWithRetry(topic, UUID.randomUUID().toString(), JSON.toJSONString(event));
         producer.flush();
     }
@@ -124,7 +126,7 @@ public class KafkaProducer {
      * 数据处理
      */
     public interface Caller {
-        Map<String, Object> convert(String message);
+        void convert(String message, Map<String, Object> event);
 
     }
 

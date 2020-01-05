@@ -5,6 +5,8 @@ import com.yis.util.cli.CliUtil;
 import com.yis.util.jdbc.DbUtil;
 import com.yis.util.kafka.KafkaConsumer;
 import com.yis.util.kafka.KafkaProducer;
+import com.yis.util.redis.RedisUtil;
+import com.yis.util.yaml.YamlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,6 +26,24 @@ public class Main {
 //        main.testCli(args);
         // db测试
 //        main.testJDBC();
+        // yaml测试
+//        main.testYaml();
+        // redis测试
+        main.testRedis();
+    }
+
+    private void testRedis() {
+        String host = "172.16.8.132";
+        int port = 6379;
+        String password = "abc123";
+        RedisUtil.initInstance(host, port, password);
+        String set = RedisUtil.getRedisUtil().set("test", "lallala");
+        System.out.println(set);
+    }
+
+    private void testYaml() {
+        Map<String, Object> yaml = YamlUtil.parseYaml("application.yaml");
+        System.out.println(JSON.toJSONString(yaml));
     }
 
     private void testJDBC() {
@@ -54,14 +74,9 @@ public class Main {
         }};
 
         KafkaProducer.initInstance(bootstrap, topic, props);
-        KafkaProducer.getInstance().pushToKafka("erwerwer");
+        KafkaProducer.getInstance().pushToKafka("lalal", (message, event) -> event.put("message", message));
 
         KafkaConsumer.initInstance(bootstrap, topic, groupId, props);
-        KafkaConsumer.getInstance().pullFromKafka(new KafkaConsumer.Caller() {
-            @Override
-            public void emit(String message) {
-                System.out.println(message);
-            }
-        });
+        KafkaConsumer.getInstance().pullFromKafka(message -> System.out.println(message));
     }
 }
