@@ -6,6 +6,7 @@ import com.yis.util.jdbc.DbUtil;
 import com.yis.util.kafka.KafkaConsumer;
 import com.yis.util.kafka.KafkaProducer;
 import com.yis.util.redis.RedisUtil;
+import com.yis.util.shell.ShellUtil;
 import com.yis.util.yaml.YamlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,13 @@ public class Main {
         // yaml测试
 //        main.testYaml();
         // redis测试
-        main.testRedis();
+//        main.testRedis();
+        // shell测试
+//        main.testShell();
+    }
+
+    private void testShell() {
+        ShellUtil.script("chmod", "755", "/Users/milu/data/tmp/shell/sh1.sh");
     }
 
     private void testRedis() {
