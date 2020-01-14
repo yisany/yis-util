@@ -23,6 +23,12 @@ public class CliUtil {
     private static final String OPT_FORMAT = "%s-file";
     private static final String DESC_FORMAT = "specify %s config file";
 
+    /**
+     * 解析命令行
+     * @param args 命令行
+     * @param opts 参数名
+     * @return
+     */
     public static Map<String, String> parseCli(String[] args, String... opts) {
         Map<String, String> comms = new HashMap<>();
         try {
