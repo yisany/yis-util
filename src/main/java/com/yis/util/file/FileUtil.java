@@ -91,7 +91,7 @@ public class FileUtil {
      * @param fileName 文件名
      * @param content 内容
      */
-    public static void append(String fileDir, String fileName, String content) {
+    public static void write(String fileDir, String fileName, String content, boolean append) {
         String dir;
         FileOutputStream fos = null;
         FileChannel oChannel = null;
@@ -115,7 +115,7 @@ public class FileUtil {
                 fileTemp.createNewFile();
             }
 
-            fos = new FileOutputStream(dir, true);
+            fos = new FileOutputStream(dir, append);
 
 
             oChannel = fos.getChannel();
