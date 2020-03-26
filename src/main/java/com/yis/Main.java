@@ -1,7 +1,10 @@
 package com.yis;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.yis.util.cli.CliUtil;
+import com.yis.util.encode.CodecUtil;
+import com.yis.util.encode.SnowFlake;
 import com.yis.util.jdbc.DbUtil;
 import com.yis.util.kafka.KafkaConsumer;
 import com.yis.util.kafka.KafkaProducer;
@@ -11,6 +14,7 @@ import com.yis.util.yaml.YamlUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +37,46 @@ public class Main {
 //        main.testRedis();
         // shell测试
 //        main.testShell();
+        // 雪花加密测试
+//        main.testSnow();
+
+        main.testCodec();
+
+    }
+
+    private void testCodec() {
+        String charset = "UTF-8";
+        JSONObject obj = new JSONObject();
+        obj.put("ids", "43,56");
+        obj.put("os", "linux");
+        obj.put("token", "kRhisbdoTQMCZU5KqQqGkQ7sDA7BM9kpldnQ5Nf2al8ER9yp");
+        obj.put("dir", "");
+        JSONObject obj2 = new JSONObject();
+        obj2.put("ids", "43,56");
+//        obj2.put("os", "linux");
+        obj2.put("token", "kRhisbdoTQMCZU5KqQqGk");
+//        obj2.put("dir", "");
+        try {
+            String encodeParamStr = CodecUtil.urlEncode(CodecUtil.base64Encode(obj.toString(), charset), charset);
+            String encodeParamStr2 = CodecUtil.urlEncode(CodecUtil.base64Encode(obj2.toString(), charset), charset);
+            System.out.println(encodeParamStr);
+            System.out.println(encodeParamStr2);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void testSnow() {
+        SnowFlake snowFlake = new SnowFlake(2, 3);
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            System.out.println(snowFlake.nextId());
+        }
+
+        System.out.println(System.currentTimeMillis() - start);
+
+
     }
 
     private void testShell() {
